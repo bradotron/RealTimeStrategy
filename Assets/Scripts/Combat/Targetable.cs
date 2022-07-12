@@ -1,18 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
+using Mirror;
 using UnityEngine;
 
-public class Targetable : MonoBehaviour
+public class Targetable : NetworkBehaviour
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+  [SerializeField] private Transform aimPoint = null;
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
+  public Transform GetAimPoint()
+  {
+    return aimPoint;
+  }
 }
