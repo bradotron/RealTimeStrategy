@@ -18,7 +18,6 @@ public class UnitSpawner : NetworkBehaviour, IPointerClickHandler
 		NetworkServer.Spawn(unitInstance, connectionToClient);
 	}
 
-
 	#endregion
 
 	#region Client

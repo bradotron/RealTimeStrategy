@@ -8,18 +8,23 @@ public class RTSPlayer : NetworkBehaviour
 {
 	[SerializeField] private List<Unit> myUnits = new List<Unit>();
 
+	public List<Unit> GetMyUnits() 
+	{
+		return myUnits;
+	}
+
 	#region Server
 
 	public override void OnStartServer()
 	{
 		Unit.ServerOnUnitSpawned += ServerHandleUnitSpawned;
-		Unit.ServerOnUnitDespawned += ServerHandleUnitDepawned;
+		Unit.ServerOnUnitDespawned += ServerHandleUnitDespawned;
 	}
 
 	public override void OnStopServer()
 	{
 		Unit.ServerOnUnitSpawned -= ServerHandleUnitSpawned;
-		Unit.ServerOnUnitDespawned -= ServerHandleUnitDepawned;
+		Unit.ServerOnUnitDespawned -= ServerHandleUnitDespawned;
 	}
 
 	private void ServerHandleUnitSpawned(Unit unit)
@@ -29,7 +34,7 @@ public class RTSPlayer : NetworkBehaviour
 		myUnits.Add(unit);
 	}
 
-	private void ServerHandleUnitDepawned(Unit unit)
+	private void ServerHandleUnitDespawned(Unit unit)
 	{
 		if (unit.connectionToClient.connectionId != connectionToClient.connectionId) { return; }
 
@@ -45,7 +50,7 @@ public class RTSPlayer : NetworkBehaviour
 		if (!isClientOnly) { return; }
 
 		Unit.AuthorityOnUnitSpawned += AuthorityHandleUnitSpawned;
-		Unit.AuthorityOnUnitDespawned += AuthorityHandleUnitDepawned;
+		Unit.AuthorityOnUnitDespawned += AuthorityHandleUnitDespawned;
 	}
 
 
@@ -54,17 +59,17 @@ public class RTSPlayer : NetworkBehaviour
 		if (!isClientOnly) { return; }
 
 		Unit.AuthorityOnUnitSpawned -= AuthorityHandleUnitSpawned;
-		Unit.AuthorityOnUnitDespawned -= AuthorityHandleUnitDepawned;
+		Unit.AuthorityOnUnitDespawned -= AuthorityHandleUnitDespawned;
 	}
 
-	private void AuthorityHandleUnitDepawned(Unit unit)
+	private void AuthorityHandleUnitSpawned(Unit unit)
 	{
 		if (!hasAuthority) { return; }
 
 		myUnits.Add(unit);
 	}
-
-	private void AuthorityHandleUnitSpawned(Unit unit)
+	
+	private void AuthorityHandleUnitDespawned(Unit unit)
 	{
 		if (!hasAuthority) { return; }
 		
