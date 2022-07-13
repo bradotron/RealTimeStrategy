@@ -9,6 +9,11 @@ public class Targeter : NetworkBehaviour
 	
 	#region Server
 	
+	public Targetable GetTarget() 
+	{
+		return target;
+	}
+	
 	[Command]
 	public void CmdSetTarget(Targetable target)
 	{
