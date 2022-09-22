@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Mirror;
@@ -6,29 +7,46 @@ using UnityEngine.EventSystems;
 
 public class UnitSpawner : NetworkBehaviour, IPointerClickHandler
 {
-	[SerializeField] private GameObject unitPrefab = null;
-	[SerializeField] private Transform unitSpawnPoint = null;
+  [SerializeField] private Health health = null;
+  [SerializeField] private GameObject unitPrefab = null;
+  [SerializeField] private Transform unitSpawnPoint = null;
 
-	#region Server
+  #region Server
 
-	[Command]
-	private void CmdSpawnUnit()
-	{
-		GameObject unitInstance = Instantiate(unitPrefab, unitSpawnPoint.position, unitSpawnPoint.rotation);
-		NetworkServer.Spawn(unitInstance, connectionToClient);
-	}
+  public override void OnStartServer()
+  {
+    health.ServerOnDie += ServerHandleDie;
+  }
 
-	#endregion
+  public override void OnStopServer()
+  {
+    health.ServerOnDie -= ServerHandleDie;
+  }
 
-	#region Client
+  [Server]
+  private void ServerHandleDie()
+  {
+    //NetworkServer.Destroy(gameObject);
+  }
 
-	public void OnPointerClick(PointerEventData eventData)
-	{
-		if (!hasAuthority) { return; }
-		if (eventData.button != PointerEventData.InputButton.Left) { return; }
-		
-		CmdSpawnUnit();
-	}
+  [Command]
+  private void CmdSpawnUnit()
+  {
+    GameObject unitInstance = Instantiate(unitPrefab, unitSpawnPoint.position, unitSpawnPoint.rotation);
+    NetworkServer.Spawn(unitInstance, connectionToClient);
+  }
 
-	#endregion
+  #endregion
+
+  #region Client
+
+  public void OnPointerClick(PointerEventData eventData)
+  {
+    if (!hasAuthority) { return; }
+    if (eventData.button != PointerEventData.InputButton.Left) { return; }
+
+    CmdSpawnUnit();
+  }
+
+  #endregion
 }

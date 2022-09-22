@@ -10,7 +10,6 @@ public class UnitSelectionHandler : MonoBehaviour
   [SerializeField] private LayerMask layerMask;
   [SerializeField] private RectTransform unitSelectBox = null;
 
-
   private Vector2 startSelectBoxPosition;
   private RTSPlayer player;
   private Camera mainCamera;
@@ -20,7 +19,13 @@ public class UnitSelectionHandler : MonoBehaviour
   private void Start()
   {
     mainCamera = Camera.main;
+    Unit.AuthorityOnUnitDespawned += AuthorityHandleUnitDespawned;
+    GameOverHandler.ClientOnGameOver += ClientHandleGameOver;
+  }
 
+  private void OnDestroy()
+  {
+    Unit.AuthorityOnUnitDespawned -= AuthorityHandleUnitDespawned;
   }
 
   private void TrySetPlayer()
@@ -126,5 +131,15 @@ public class UnitSelectionHandler : MonoBehaviour
       selectedUnit.Deselect();
     }
     SelectedUnits.Clear();
+  }
+
+  private void AuthorityHandleUnitDespawned(Unit unit)
+  {
+    SelectedUnits.Remove(unit);
+  }
+
+  private void ClientHandleGameOver(string winnerName)
+  {
+    enabled = false;
   }
 }

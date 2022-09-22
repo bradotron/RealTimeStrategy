@@ -7,73 +7,81 @@ using UnityEngine.Events;
 
 public class Unit : NetworkBehaviour
 {
-	[SerializeField] private UnitMovement unitMovement = null;
-	[SerializeField] private Targeter targeter = null;
-	[SerializeField] private UnityEvent onSelected = null;
-	[SerializeField] private UnityEvent onDeselected = null;
+  [SerializeField] private Health health = null;
+  [SerializeField] private UnitMovement unitMovement = null;
+  [SerializeField] private Targeter targeter = null;
+  [SerializeField] private UnityEvent onSelected = null;
+  [SerializeField] private UnityEvent onDeselected = null;
 
-	public static event Action<Unit> ServerOnUnitSpawned;
-	public static event Action<Unit> ServerOnUnitDespawned;
+  public static event Action<Unit> ServerOnUnitSpawned;
+  public static event Action<Unit> ServerOnUnitDespawned;
 
-	public static event Action<Unit> AuthorityOnUnitSpawned;
-	public static event Action<Unit> AuthorityOnUnitDespawned;
+  public static event Action<Unit> AuthorityOnUnitSpawned;
+  public static event Action<Unit> AuthorityOnUnitDespawned;
 
-	public UnitMovement GetUnitMovement()
-	{
-		return unitMovement;
-	}
+  public UnitMovement GetUnitMovement()
+  {
+    return unitMovement;
+  }
 
-	public Targeter GetTargeter() 
-	{
-		return targeter;
-	}
+  public Targeter GetTargeter()
+  {
+    return targeter;
+  }
 
-	#region Server
+  #region Server
 
-	public override void OnStartServer()
-	{
-		ServerOnUnitSpawned?.Invoke(this);
-	}
+  public override void OnStartServer()
+  {
+    ServerOnUnitSpawned?.Invoke(this);
+    health.ServerOnDie += ServerHandleDie;
+  }
 
-	public override void OnStopServer()
-	{
-		ServerOnUnitDespawned?.Invoke(this);
-	}
+  public override void OnStopServer()
+  {
+    ServerOnUnitDespawned?.Invoke(this);
+    health.ServerOnDie -= ServerHandleDie;
+  }
 
-	#endregion
+  [Server]
+  private void ServerHandleDie()
+  {
+    NetworkServer.Destroy(gameObject);
+    AuthorityOnUnitDespawned.Invoke(this);
+  }
 
-	#region Client
+  #endregion
 
-	public override void OnStartClient()
-	{
-		if (!isClientOnly || !hasAuthority) { return; }
+  #region Client
 
-		AuthorityOnUnitSpawned?.Invoke(this);
-	}
+  public override void OnStartAuthority()
+  {
+    AuthorityOnUnitSpawned?.Invoke(this);
+  }
 
-	public override void OnStopClient()
-	{
-		if (!isClientOnly || !hasAuthority) { return; }
+  public override void OnStopClient()
+  {
+    if (!hasAuthority) { return; }
 
-		AuthorityOnUnitDespawned?.Invoke(this);
-	}
+    AuthorityOnUnitDespawned?.Invoke(this);
+  }
 
 
-	[Client]
-	public void Select()
-	{
-		if (!hasAuthority) { return; }
+  [Client]
+  public void Select()
+  {
+    if (!hasAuthority) { return; }
 
-		onSelected?.Invoke();
-	}
+    onSelected?.Invoke();
+  }
 
-	[Client]
-	public void Deselect()
-	{
-		if (!hasAuthority) { return; }
+  [Client]
+  public void Deselect()
+  {
+    if (!hasAuthority) { return; }
 
-		onDeselected?.Invoke();
-	}
+    onDeselected?.Invoke();
+  }
 
-	#endregion
+  #endregion
 }
