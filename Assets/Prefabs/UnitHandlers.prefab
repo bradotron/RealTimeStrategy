@@ -225,7 +225,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   layerMask:
     serializedVersion: 2
-    m_Bits: 1
+    m_Bits: 256
   unitSelectBox: {fileID: 7557860254289832280}
 --- !u!114 &8729365737312899105
 MonoBehaviour:
@@ -242,4 +242,4 @@ MonoBehaviour:
   unitSelectionHandler: {fileID: 4148777159873635857}
   layerMask:
     serializedVersion: 2
-    m_Bits: 1
+    m_Bits: 1281
